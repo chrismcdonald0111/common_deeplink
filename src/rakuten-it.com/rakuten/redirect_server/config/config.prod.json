@@ -1,0 +1,8 @@
+{
+  "port": 77,
+  "timeout": {
+    "readTimeoutSec": 5,
+    "writeTimeoutSec": 10,
+    "idleTimeoutSec": 60
+  }
+}
