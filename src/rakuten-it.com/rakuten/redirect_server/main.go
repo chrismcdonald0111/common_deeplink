@@ -6,7 +6,7 @@
   This project includes the following features:
   - Run-time argument parsing
   - JSON config <> struct parsing
-  - STDOUT Loggingd
+  - STDERR Logging
   - Framework-less web server (built on net/http)
   - HTTP protocol (HTTPS is not yet implemented)
   - URL Redirection
@@ -19,12 +19,11 @@
 package main
 
 import (
-    "fmt"
     "log"
     "os"
 
-    co "rakuten-it.com/rakuten/redirect_server/config"
-    sv "rakuten-it.com/rakuten/redirect_server/service"
+    cg "rakuten-it.com/rakuten/redirect_server/config"
+    sc "rakuten-it.com/rakuten/redirect_server/service"
 )
 
 const (
@@ -40,18 +39,18 @@ func parseArg(args []string, pos int, defaultArg string) string {
 }
 
 // Parse arguments & config
-// Create instance of HTTP Server (server struct)
-// Add routes to server mux
-// Server begins listening on provided port
+// Create instance of 'server' struct
+// Add routes to server's router (ServeMux)
+// Listen on provided port #
 func main() {
     args := os.Args[1:] // Start from pos 1 to ignore the command literal i.e. ./cmd a b c would ignore ./cmd
     configFile := parseArg(args, configFilePos, defaultConfigFile)
-    config, err := co.ReadConfig(configFile)
+    config, err := cg.ReadJsonConfig(configFile)
     if err != nil {
-      log.Fatal(err)
+      log.Printf("Failed to parse config file with error: %s", err)
     }
-    s := sv.Create(config.Port, config.Timeout)
-    fmt.Println(s.Port)
-    s.AddRoutes()
-    log.Fatal(s.HttpServer.ListenAndServe())
+    srv := sc.Create(config.Port, config.Timeout)
+    srv.AddRoutes()
+    log.Printf("Listening on port: %d.", srv.Port)
+    log.Fatal(srv.HttpServer.ListenAndServe()) // Last thing on stack
 }

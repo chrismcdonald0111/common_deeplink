@@ -1,5 +1,5 @@
 {
-  "port": 77,
+  "port": 7070,
   "timeout": {
     "readTimeoutSec": 5,
     "writeTimeoutSec": 10,

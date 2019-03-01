@@ -6,26 +6,35 @@ import (
   "os"
   "path/filepath"
 
-  sv "rakuten-it.com/rakuten/redirect_server/service"
+  sc "rakuten-it.com/rakuten/redirect_server/service"
 )
 
-type Config struct {
+type JsonConfig struct {
     Port    int        `json:"port"`
-    Timeout sv.Timeout `json:"timeout"`
+    Timeout sc.Timeout `json:"timeout"`
 }
 
-func ReadConfig(fileName string) (Config, error) {
-  fullPath, _ := filepath.Abs(fileName)
+// Read Json formatted config file into struct 'JsonConfig'
+func ReadJsonConfig(fileName string) (JsonConfig, error) {
+  // Get canonical file path
+  fullPath, err := filepath.Abs(fileName)
+  if err != nil {
+    return JsonConfig{}, err
+  }
+
+  // Read file
   f, err := os.Open(fullPath)
   if err != nil {
-    return Config{}, err
+    return JsonConfig{}, err
   }
   defer f.Close()
 
+  // Read file bytes into memory
   byteValue, _ := ioutil.ReadAll(f)
 
-	var config Config
+	var config JsonConfig
+  // Convert the bytes into defined struct 'JsonConfig'
 	json.Unmarshal([]byte(byteValue), &config)
 
-  return config, f.Sync()
+  return config, f.Sync() // Sync returns error if file buffer remains open
 }
